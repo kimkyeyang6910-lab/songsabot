@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>송사봇 관리자</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --blue:#3b82f6;--blue-d:#1d4ed8;--blue-l:#eff6ff;
+    --green:#16a34a;--green-l:#f0fdf4;--purple:#7c3aed;--purple-l:#f5f3ff;
+    --red:#dc2626;--red-l:#fef2f2;--amber-l:#fffbeb;
+    --g50:#f9fafb;--g100:#f3f4f6;--g200:#e5e7eb;--g400:#9ca3af;--g500:#6b7280;--g600:#4b5563;--g800:#1f2937;
+  }
+  body{font-family:'Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif;background:#f4f7ff;color:var(--g800);line-height:1.6;padding-bottom:90px}
+  .wrap{max-width:960px;margin:0 auto;padding:0 16px}
+  .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .spacer{flex:1}
+  header.top{background:linear-gradient(135deg,#1e3a8a,#1d4ed8 60%,#2563eb);color:#fff;padding:14px 0}
+  header.top h1{font-size:1.15rem;font-weight:800}
+  #who{font-size:.8rem;opacity:.85}
+  button{font:inherit;cursor:pointer}
+  button.ghost{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:8px;padding:6px 12px;font-size:.82rem}
+  .btn{border:1px solid var(--g200);background:#fff;color:var(--g800);border-radius:10px;padding:8px 14px;font-size:.88rem;font-weight:600}
+  .btn.primary{background:linear-gradient(135deg,var(--blue),var(--blue-d));border:none;color:#fff}
+  .btn.danger{background:var(--red-l);border-color:#fecaca;color:#b91c1c}
+  .btn.blue{background:var(--blue-l);border-color:#bfdbfe;color:var(--blue-d)}
+  .btn.sm{padding:5px 10px;font-size:.78rem;border-radius:8px}
+  .btn:disabled{opacity:.5;cursor:default}
+  .notice{border-radius:12px;padding:14px 16px;font-size:.88rem;margin:16px 0}
+  .notice.warn{background:var(--amber-l);border:1px solid #fde68a;color:#92400e}
+  .notice.info{background:var(--blue-l);border:1px solid #bfdbfe;color:#1e40af}
+  .panel{background:#fff;border:1px solid var(--g200);border-radius:16px;padding:28px;margin:24px 0;text-align:center}
+  .panel h2{font-size:1.15rem;margin-bottom:8px}
+  .panel p{color:var(--g600);font-size:.9rem;margin-bottom:16px}
+  .tabs{display:flex;gap:6px;margin:18px 0 14px;border-bottom:2px solid var(--g200)}
+  .tab{background:none;border:none;padding:10px 16px;font-weight:700;color:var(--g500);border-bottom:3px solid transparent;margin-bottom:-2px}
+  .tab.on{color:var(--blue-d);border-color:var(--blue)}
+  .tab .n{background:var(--blue);color:#fff;border-radius:99px;font-size:.7rem;padding:1px 7px;margin-left:4px}
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+  select,input[type=text],input[type=password],textarea{font:inherit;font-size:.9rem;border:1.5px solid var(--g200);border-radius:8px;padding:7px 10px;background:#fff;color:var(--g800)}
+  textarea{width:100%;resize:vertical;line-height:1.7}
+  .card{background:#fff;border:1.5px solid var(--g200);border-radius:14px;padding:14px 16px;margin-bottom:10px;display:flex;gap:12px}
+  .card.sel{border-color:var(--blue);background:#f8fbff}
+  .card input[type=checkbox]{width:20px;height:20px;margin-top:3px;accent-color:var(--blue-d);flex-shrink:0}
+  .card .body{flex:1;min-width:0}
+  .head{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .head strong{font-size:1rem}
+  .head time{margin-left:auto;font-size:.76rem;color:var(--g500)}
+  .tag{background:var(--g100);color:var(--g600);border-radius:99px;font-size:.72rem;font-weight:700;padding:2px 9px}
+  .tag.ok{background:var(--green-l);color:var(--green)}
+  .meta{font-size:.82rem;color:var(--g600);margin-top:2px}
+  details{margin-top:8px}
+  summary{cursor:pointer;font-size:.82rem;color:var(--blue-d);font-weight:600}
+  dl{margin-top:8px;font-size:.88rem}
+  dt{font-weight:700;color:var(--g600);font-size:.78rem;margin-top:8px}
+  dd{white-space:pre-wrap;word-break:break-word}
+  .empty{text-align:center;color:var(--g500);padding:40px 0;font-size:.92rem}
+  .case{background:linear-gradient(135deg,#f0f7ff,#faf5ff);border:1px solid #ddd6fe;border-radius:18px;padding:20px;margin-bottom:16px}
+  .case-head{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+  .badge{background:linear-gradient(135deg,var(--purple),#6d28d9);color:#fff;border-radius:8px;padding:3px 10px;font-size:.74rem;font-weight:700}
+  .case-head h3{font-size:1rem}
+  .box{background:#fff;border:1px solid #e9d5ff;border-radius:12px;padding:14px;margin-bottom:10px;font-size:.88rem;white-space:pre-wrap;word-break:break-word}
+  .box h4{font-size:.85rem;margin-bottom:4px;color:var(--g800)}
+  .box.warn{background:var(--amber-l);border-color:#fde68a}
+  .msg{background:var(--green-l);border:1px solid #bbf7d0;border-radius:12px;padding:12px 14px;margin-bottom:10px}
+  .msg-head{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+  .msg-head b{color:#166534;font-size:.85rem}
+  .msg textarea{min-height:130px;border-color:#bbf7d0}
+  .cnt{font-size:.72rem;color:var(--g500);text-align:right}
+  .case-foot{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;align-items:center;margin-top:8px}
+  .case-foot .src{margin-right:auto;font-size:.76rem;color:var(--g500)}
+  .actionbar{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--g200);box-shadow:0 -4px 20px rgba(0,0,0,.08);padding:12px 0;z-index:20}
+  .linkrow{background:#fff;border:1px solid var(--g200);border-radius:12px;padding:10px 12px;margin-bottom:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .linkrow b{min-width:56px}
+  .linkrow input{flex:1;min-width:200px;font-size:.8rem}
+  dialog{border:none;border-radius:18px;padding:24px;max-width:460px;width:calc(100% - 32px);box-shadow:0 20px 60px rgba(0,0,0,.3)}
+  dialog::backdrop{background:rgba(15,23,42,.5)}
+  dialog h2{font-size:1.1rem;margin-bottom:14px}
+  dialog label{display:block;font-size:.82rem;font-weight:700;margin:12px 0 4px}
+  dialog input[type=text],dialog input[type=password]{width:100%}
+  dialog .chk{display:flex;gap:8px;align-items:flex-start;font-weight:500;font-size:.85rem}
+  dialog .chk input{margin-top:4px}
+  dialog .help{font-size:.76rem;color:var(--g500);margin-top:3px}
+  dialog a{color:var(--blue-d)}
+  #busy{position:fixed;inset:0;background:rgba(255,255,255,.75);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;z-index:50;font-weight:700;color:var(--blue-d)}
+  .spin{width:38px;height:38px;border:4px solid #bfdbfe;border-top-color:var(--blue-d);border-radius:50%;animation:s 1s linear infinite}
+  @keyframes s{to{transform:rotate(360deg)}}
+  #toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:var(--g800);color:#fff;border-radius:10px;padding:10px 16px;font-size:.86rem;z-index:60;max-width:90%;opacity:0;pointer-events:none;transition:opacity .2s}
+  #toast.show{opacity:1}
+  #toast.bad{background:#b91c1c}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap row">
+    <h1>🤖 송사봇 관리자</h1>
+    <div class="spacer"></div>
+    <span id="who"></span>
+    <button class="ghost" id="btnSettings" hidden>⚙️ 설정</button>
+    <button class="ghost" id="btnLogout" hidden>로그아웃</button>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <div id="warnConfig" class="notice warn" hidden>
+    ⚠️ Firebase 설정이 아직 비어 있어요. <b>firebase-config.js</b> 파일을 채운 뒤 다시 열어 주세요. (SETUP.md 참고)
+  </div>
+
+  <section id="viewLogin" class="panel" hidden>
+    <h2>🔒 선생님 전용 화면</h2>
+    <p>신고서와 AI 분석 결과는 로그인한 선생님만 볼 수 있어요.</p>
+    <button class="btn primary" id="btnLogin">Google 계정으로 로그인</button>
+    <p id="loginErr" style="color:var(--red);margin:12px 0 0"></p>
+  </section>
+
+  <section id="viewDenied" class="panel" hidden>
+    <h2>접근 권한이 없는 계정이에요</h2>
+    <p id="deniedMsg"></p>
+    <button class="btn" id="btnDeniedOut">다른 계정으로 로그인</button>
+  </section>
+
+  <section id="viewApp" hidden>
+    <nav class="tabs">
+      <button class="tab on" data-tab="reports">📋 신고서 <span class="n" id="nReports">0</span></button>
+      <button class="tab" data-tab="cases">🤖 분석 결과 <span class="n" id="nCases">0</span></button>
+      <button class="tab" data-tab="links">🔗 학급 링크</button>
+    </nav>
+
+    <div id="tab-reports">
+      <div class="notice info" id="keyNotice" hidden>
+        AI 분석을 쓰려면 먼저 <b>⚙️ 설정</b>에서 Gemini API 키를 넣어 주세요.
+      </div>
+      <div class="toolbar">
+        <select id="fClass"><option value="">전체 학급</option></select>
+        <select id="fStatus">
+          <option value="all">전체</option>
+          <option value="new">분석 전</option>
+          <option value="done">분석됨</option>
+        </select>
+        <label class="row" style="gap:6px;font-size:.85rem"><input type="checkbox" id="pickAll" style="width:18px;height:18px"> 보이는 것 모두 선택</label>
+        <span class="spacer"></span>
+        <span style="font-size:.78rem;color:var(--g500)">같은 사건의 신고서를 함께 골라 분석하면 통합 분석이 돼요.</span>
+      </div>
+      <div id="reportList"></div>
+    </div>
+
+    <div id="tab-cases" hidden>
+      <div id="caseList"></div>
+    </div>
+
+    <div id="tab-links" hidden>
+      <div class="notice info">학급 이름을 쉼표로 적고 <b>링크 만들기</b>를 누르세요. 각 학급 링크로 접속한 학생의 신고서는 그 학급으로 분류돼요.</div>
+      <div class="toolbar">
+        <input type="text" id="classNames" value="5-1, 5-2" style="flex:1;min-width:200px" placeholder="예: 5-1, 5-2, 5-3">
+        <button class="btn primary" id="btnMakeLinks">링크 만들기</button>
+      </div>
+      <div id="linkList"></div>
+      <p style="font-size:.78rem;color:var(--g500);margin-top:10px">링크를 아는 사람은 누구나 신고서를 보낼 수 있어요. 학급 밖에 공유하지 마세요.</p>
+    </div>
+  </section>
+</main>
+
+<div class="actionbar" id="actionbar" hidden>
+  <div class="wrap row">
+    <b id="selCount">0건 선택</b>
+    <span class="spacer"></span>
+    <button class="btn" id="btnClear">선택 해제</button>
+    <button class="btn danger" id="btnDelSel">🗑️ 삭제</button>
+    <button class="btn primary" id="btnAnalyze">🤖 AI 분석</button>
+  </div>
+</div>
+
+<dialog id="dlgSettings">
+  <form method="dialog" id="formSettings">
+    <h2>⚙️ 설정</h2>
+    <label for="setKey">Gemini API 키</label>
+    <input type="password" id="setKey" autocomplete="off" placeholder="AIza...">
+    <div class="help">이 브라우저에만 저장돼요(서버·코드에는 올라가지 않음). 키는 <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a>에서 받아요.</div>
+
+    <label for="setModel">Gemini 모델 이름</label>
+    <input type="text" id="setModel" autocomplete="off">
+    <div class="help">오류가 나면 AI Studio에서 현재 쓸 수 있는 모델 이름으로 바꿔 보세요.</div>
+
+    <label class="chk"><input type="checkbox" id="setMask"> AI에 보낼 때 학생 이름을 '학생A, 학생B'로 가리기</label>
+    <div class="help">결과 화면에는 원래 이름으로 되돌려 보여줘요. 글 속에 적힌 별명·성 없는 이름은 가려지지 않을 수 있어요.</div>
+
+    <label class="chk"><input type="checkbox" id="setOther"> 학부모 문자에 상대 학생 이름 쓰는 것 허용</label>
+    <div class="help">끄면 '상대 학생'으로 표현해요(권장).</div>
+
+    <div class="row" style="margin-top:18px;justify-content:flex-end">
+      <button class="btn" value="cancel" formnovalidate>닫기</button>
+      <button class="btn primary" id="btnSaveSettings" value="save">저장</button>
+    </div>
+  </form>
+</dialog>
+
+<div id="busy" hidden><div class="spin"></div><div id="busyText">AI가 분석하는 중...</div></div>
+<div id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  getFirestore, collection, query, orderBy, onSnapshot, addDoc, updateDoc, deleteDoc,
+  doc, writeBatch, serverTimestamp, deleteField
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { firebaseConfig, teacherEmail } from "./firebase-config.js";
+import { SYSTEM_PROMPT, buildPrompt, parseResult } from "./analysis.js";
+
+/* ───────── 작은 도우미 ───────── */
+const $ = (s, r = document) => r.querySelector(s);
+const DEFAULT_MODEL = "gemini-2.5-flash";
+const LS = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch {} },
+};
+
+function h(tag, attrs, ...children) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (k === "class") e.className = v;
+    else if (k.startsWith("on")) e.addEventListener(k.slice(2), v);
+    else if (v !== false && v != null) e.setAttribute(k, v === true ? "" : v);
+  }
+  for (const c of children.flat()) {
+    if (c == null || c === false) continue;
+    e.append(c.nodeType ? c : document.createTextNode(c));
+  }
+  return e;
+}
+
+let toastTimer;
+function toast(msg, bad = false) {
+  const t = $("#toast");
+  t.textContent = msg;
+  t.classList.toggle("bad", bad);
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("show"), bad ? 6000 : 2600);
+}
+function busy(on, text = "AI가 분석하는 중...") {
+  $("#busyText").textContent = text;
+  $("#busy").hidden = !on;
+}
+async function copyText(text) {
+  try { await navigator.clipboard.writeText(text); return true; }
+  catch {
+    const ta = h("textarea", { style: "position:fixed;opacity:0" });
+    ta.value = text; document.body.append(ta); ta.select();
+    let ok = false;
+    try { ok = document.execCommand("copy"); } catch {}
+    ta.remove();
+    return ok;
+  }
+}
+const fmtDT = (s) => {
+  if (!s) return "";
+  const d = new Date(s);
+  if (isNaN(d)) return s;
+  return d.toLocaleString("ko-KR", { month: "long", day: "numeric", weekday: "short", hour: "numeric", minute: "2-digit" });
+};
+const fmtTS = (ts) => (ts && ts.toDate ? ts.toDate().toLocaleString("ko-KR", { month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit" }) : "");
+
+/* ───────── Firebase 초기화 ───────── */
+const configured = !String(firebaseConfig.apiKey || "").startsWith("YOUR_");
+let auth, db;
+if (configured) {
+  const app = initializeApp(firebaseConfig);
+  auth = getAuth(app);
+  db = getFirestore(app);
+} else {
+  $("#warnConfig").hidden = false;
+}
+
+/* ───────── 화면 전환 ───────── */
+function show(view) {
+  for (const id of ["viewLogin", "viewDenied", "viewApp"]) $("#" + id).hidden = id !== view;
+  const inApp = view === "viewApp";
+  $("#btnSettings").hidden = !inApp;
+  $("#btnLogout").hidden = !(inApp || view === "viewDenied");
+  if (!inApp) $("#actionbar").hidden = true;
+}
+function switchTab(name) {
+  document.querySelectorAll(".tab").forEach((b) => b.classList.toggle("on", b.dataset.tab === name));
+  for (const id of ["reports", "cases", "links"]) $("#tab-" + id).hidden = id !== name;
+  updateBar();
+}
+document.querySelectorAll(".tab").forEach((b) => b.addEventListener("click", () => switchTab(b.dataset.tab)));
+
+/* ───────── 로그인 ───────── */
+let unsubs = [];
+function stopListening() { unsubs.forEach((u) => u()); unsubs = []; reports = []; cases = []; selected.clear(); }
+
+if (configured) {
+  onAuthStateChanged(auth, (user) => {
+    stopListening();
+    if (!user) { $("#who").textContent = ""; show("viewLogin"); return; }
+    $("#who").textContent = user.email || "";
+    const placeholder = String(teacherEmail).startsWith("YOUR_");
+    if (!placeholder && (user.email || "").toLowerCase() !== String(teacherEmail).toLowerCase()) {
+      $("#deniedMsg").textContent = `${user.email} 계정은 이 시스템의 관리자 계정이 아니에요.`;
+      show("viewDenied");
+      return;
+    }
+    show("viewApp");
+    startListening();
+    refreshKeyNotice();
+  });
+}
+$("#btnLogin").addEventListener("click", async () => {
+  $("#loginErr").textContent = "";
+  try { await signInWithPopup(auth, new GoogleAuthProvider()); }
+  catch (e) {
+    const code = e.code || "";
+    $("#loginErr").textContent =
+      code === "auth/unauthorized-domain" ? "이 주소가 Firebase '승인된 도메인'에 없어요. SETUP.md 7단계를 확인해 주세요."
+      : code === "auth/popup-blocked" ? "팝업이 막혔어요. 팝업을 허용하고 다시 눌러 주세요."
+      : code === "auth/popup-closed-by-user" ? ""
+      : "로그인하지 못했어요. (" + code + ")";
+  }
+});
+const doLogout = () => signOut(auth);
+$("#btnLogout").addEventListener("click", doLogout);
+$("#btnDeniedOut").addEventListener("click", doLogout);
+
+/* ───────── 데이터 구독 ───────── */
+let reports = [], cases = [];
+const selected = new Set();
+
+function startListening() {
+  unsubs.push(onSnapshot(
+    query(collection(db, "reports"), orderBy("createdAt", "desc")),
+    (snap) => {
+      reports = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      for (const id of [...selected]) if (!reports.some((r) => r.id === id)) selected.delete(id);
+      renderReports();
+    },
+    (err) => toast("신고서를 불러오지 못했어요: " + (err.code || err.message), true)
+  ));
+  unsubs.push(onSnapshot(
+    query(collection(db, "cases"), orderBy("createdAt", "desc")),
+    (snap) => { cases = snap.docs.map((d) => ({ id: d.id, ...d.data() })); renderCases(); },
+    (err) => toast("분석 결과를 불러오지 못했어요: " + (err.code || err.message), true)
+  ));
+}
+
+/* ───────── 신고서 목록 ───────── */
+$("#fClass").addEventListener("change", renderReports);
+$("#fStatus").addEventListener("change", renderReports);
+$("#pickAll").addEventListener("change", (e) => {
+  for (const r of visibleReports()) e.target.checked ? selected.add(r.id) : selected.delete(r.id);
+  renderReports();
+});
+
+function visibleReports() {
+  const fc = $("#fClass").value, fs = $("#fStatus").value;
+  return reports.filter((r) =>
+    (!fc || r.cls === fc) &&
+    (fs === "all" || (fs === "new" && !r.caseId) || (fs === "done" && r.caseId))
+  );
+}
+
+function renderReports() {
+  $("#nReports").textContent = reports.length;
+
+  const sel = $("#fClass"), cur = sel.value;
+  const classes = [...new Set(reports.map((r) => r.cls))].sort((a, b) => String(a).localeCompare(String(b), "ko", { numeric: true }));
+  sel.replaceChildren(h("option", { value: "" }, "전체 학급"), ...classes.map((c) => h("option", { value: c }, c + "반")));
+  sel.value = classes.includes(cur) ? cur : "";
+
+  const list = $("#reportList");
+  const shown = visibleReports();
+  if (!shown.length) {
+    list.replaceChildren(h("div", { class: "empty" }, reports.length ? "조건에 맞는 신고서가 없어요." : "아직 제출된 신고서가 없어요."));
+  } else {
+    list.replaceChildren(...shown.map(reportCard));
+  }
+  $("#pickAll").checked = shown.length > 0 && shown.every((r) => selected.has(r.id));
+  updateBar();
+}
+
+function reportCard(r) {
+  const on = selected.has(r.id);
+  return h("article", { class: "card" + (on ? " sel" : "") },
+    h("input", {
+      type: "checkbox", checked: on, "aria-label": r.name + " 신고서 선택",
+      onchange: (e) => {
+        e.target.checked ? selected.add(r.id) : selected.delete(r.id);
+        e.target.closest(".card").classList.toggle("sel", e.target.checked);
+        $("#pickAll").checked = visibleReports().every((x) => selected.has(x.id));
+        updateBar();
+      },
+    }),
+    h("div", { class: "body" },
+      h("div", { class: "head" },
+        h("strong", {}, r.name),
+        h("span", { class: "tag" }, r.cls + "반"),
+        r.caseId && h("span", { class: "tag ok" }, "분석됨"),
+        h("time", {}, "제출 " + fmtTS(r.createdAt))
+      ),
+      h("div", { class: "meta" }, `${fmtDT(r.occurredAt)} · ${r.place}`),
+      h("details", {},
+        h("summary", {}, "신고서 내용 보기"),
+        h("dl", {},
+          h("dt", {}, "무슨 일이 있었나요?"), h("dd", {}, r.what),
+          h("dt", {}, "나는 어떻게 행동했나요?"), h("dd", {}, r.action),
+          h("dt", {}, "왜 그렇게 했나요?"), h("dd", {}, r.reason)
+        )
+      )
+    )
+  );
+}
+
+function updateBar() {
+  const inReports = !$("#tab-reports").hidden && !$("#viewApp").hidden;
+  $("#actionbar").hidden = !(inReports && selected.size > 0);
+  $("#selCount").textContent = selected.size + "건 선택";
+}
+$("#btnClear").addEventListener("click", () => { selected.clear(); renderReports(); });
+
+$("#btnDelSel").addEventListener("click", async () => {
+  const ids = [...selected];
+  if (!ids.length) return;
+  if (!confirm(`선택한 신고서 ${ids.length}건을 삭제할까요? 되돌릴 수 없어요.`)) return;
+  try {
+    const b = writeBatch(db);
+    ids.forEach((id) => b.delete(doc(db, "reports", id)));
+    await b.commit();
+    selected.clear();
+    toast("삭제했어요.");
+  } catch (e) { toast("삭제하지 못했어요: " + (e.code || e.message), true); }
+});
+
+/* ───────── Gemini 호출 ───────── */
+const getSettings = () => ({
+  key: LS.get("sb_key", ""),
+  model: LS.get("sb_model", DEFAULT_MODEL) || DEFAULT_MODEL,
+  mask: LS.get("sb_mask", "1") === "1",
+  other: LS.get("sb_other", "0") === "1",
+});
+
+async function callGemini(prompt) {
+  const { key, model } = getSettings();
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-goog-api-key": key },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.4, responseMimeType: "application/json" },
+      }),
+    }
+  );
+  if (!res.ok) {
+    let detail = "";
+    try { detail = (await res.json())?.error?.message || ""; } catch {}
+    if (res.status === 400 && /API key/i.test(detail)) throw new Error("Gemini API 키가 올바르지 않아요. ⚙️ 설정을 확인해 주세요.");
+    if (res.status === 404) throw new Error(`모델 '${model}'을 찾을 수 없어요. ⚙️ 설정에서 모델 이름을 바꿔 보세요.`);
+    if (res.status === 429) throw new Error("Gemini 사용 한도를 넘었어요. 잠시 뒤에 다시 시도해 주세요.");
+    throw new Error(`Gemini 오류 (${res.status}) ${detail}`.trim());
+  }
+  const data = await res.json();
+  const text = (data?.candidates?.[0]?.content?.parts || []).map((p) => p.text || "").join("");
+  if (!text) throw new Error("AI가 답을 주지 않았어요. 내용이 안전 필터에 걸렸을 수 있어요. 다시 시도해 보세요.");
+  return text;
+}
+
+async function runAnalysis(rs) {
+  const { mask, other } = getSettings();
+  const { prompt, restore } = buildPrompt(rs, { maskEnabled: mask, includeOtherName: other });
+  const raw = await callGemini(prompt);
+  return parseResult(raw, restore);
+}
+
+function ensureKey() {
+  if (getSettings().key) return true;
+  openSettings();
+  toast("먼저 Gemini API 키를 넣어 주세요.", true);
+  return false;
+}
+
+/* 선택한 신고서 → 새 분석 */
+$("#btnAnalyze").addEventListener("click", async () => {
+  const rs = reports.filter((r) => selected.has(r.id));
+  if (!rs.length || !ensureKey()) return;
+  busy(true);
+  try {
+    const result = await runAnalysis(rs);
+    const ref = await addDoc(collection(db, "cases"), {
+      reportIds: rs.map((r) => r.id),
+      cls: [...new Set(rs.map((r) => r.cls))].join(", "),
+      names: [...new Set(rs.map((r) => r.name))],
+      ...result,
+      model: getSettings().model,
+      createdAt: serverTimestamp(),
+    });
+    const b = writeBatch(db);
+    rs.forEach((r) => b.update(doc(db, "reports", r.id), { status: "analyzed", caseId: ref.id }));
+    await b.commit();
+    selected.clear();
+    switchTab("cases");
+    toast("분석이 끝났어요.");
+  } catch (e) {
+    console.error(e);
+    toast(e.message || "분석하지 못했어요.", true);
+  } finally { busy(false); }
+});
+
+/* ───────── 분석 결과 목록 ───────── */
+function renderCases() {
+  $("#nCases").textContent = cases.length;
+  const list = $("#caseList");
+  list.replaceChildren(...(cases.length ? cases.map(caseCard) : [h("div", { class: "empty" }, "아직 분석 결과가 없어요. 신고서를 골라 'AI 분석'을 눌러 보세요.")]));
+}
+
+function caseCard(c) {
+  const names = (c.names || []).join(", ");
+  const merged = (c.names || []).length > 1 || (c.reportIds || []).length > 1;
+  const msgBoxes = (c.messages || []).map((m) => {
+    const ta = h("textarea", { "aria-label": m.student + " 학부모 문자" });
+    ta.value = m.text;
+    const cnt = h("div", { class: "cnt" }, `${m.text.length}자`);
+    ta.addEventListener("input", () => (cnt.textContent = `${ta.value.length}자`));
+    ta.addEventListener("change", () => saveMessages(c.id, ta.closest(".case")));
+    const btn = h("button", { class: "btn sm primary", type: "button" }, "📋 복사");
+    btn.addEventListener("click", async () => {
+      const ok = await copyText(ta.value);
+      btn.textContent = ok ? "복사됨 ✓" : "복사 실패 — 직접 선택해 복사해 주세요";
+      setTimeout(() => (btn.textContent = "📋 복사"), 1800);
+    });
+    return h("div", { class: "msg", "data-student": m.student },
+      h("div", { class: "msg-head" }, h("b", {}, `📨 ${m.student} 학부모 안내 문자`), h("span", { class: "spacer" }), btn),
+      ta, cnt);
+  });
+
+  return h("article", { class: "case" },
+    h("div", { class: "case-head" },
+      h("span", { class: "badge" }, "AI 분석 결과"),
+      h("h3", {}, names + (merged ? " (통합)" : "")),
+      h("span", { class: "tag" }, (c.cls || "") + "반")
+    ),
+    h("div", { class: "box" }, h("h4", {}, "1. 종합 요약"), c.summary || "(요약 없음)"),
+    c.discrepancies && h("div", { class: "box warn" }, h("h4", {}, "⚠️ 진술 차이 · 추가 확인할 점"), c.discrepancies),
+    ...msgBoxes,
+    h("div", { class: "case-foot" },
+      h("span", { class: "src" }, `원본 신고서 ${(c.reportIds || []).length}건 · ${fmtTS(c.updatedAt || c.createdAt)} · AI가 만든 초안이니 보내기 전에 꼭 읽고 고쳐 주세요`),
+      h("button", { class: "btn blue sm", type: "button", onclick: () => reanalyze(c) }, "🔄 재분석"),
+      h("button", { class: "btn danger sm", type: "button", onclick: () => deleteCase(c) }, "🗑️ 삭제")
+    )
+  );
+}
+
+async function saveMessages(caseId, card) {
+  const messages = [...card.querySelectorAll(".msg")].map((m) => ({
+    student: m.dataset.student,
+    text: m.querySelector("textarea").value,
+  }));
+  try { await updateDoc(doc(db, "cases", caseId), { messages }); }
+  catch (e) { toast("수정 내용을 저장하지 못했어요: " + (e.code || e.message), true); }
+}
+
+async function reanalyze(c) {
+  const rs = (c.reportIds || []).map((id) => reports.find((r) => r.id === id)).filter(Boolean);
+  if (!rs.length) { toast("원본 신고서가 삭제되어 재분석할 수 없어요.", true); return; }
+  if (!confirm("다시 분석하면 지금 문자 내용(고친 부분 포함)이 새 결과로 바뀌어요. 계속할까요?")) return;
+  if (!ensureKey()) return;
+  busy(true);
+  try {
+    const result = await runAnalysis(rs);
+    await updateDoc(doc(db, "cases", c.id), { ...result, model: getSettings().model, updatedAt: serverTimestamp() });
+    toast("다시 분석했어요.");
+  } catch (e) {
+    console.error(e);
+    toast(e.message || "재분석하지 못했어요.", true);
+  } finally { busy(false); }
+}
+
+async function deleteCase(c) {
+  if (!confirm("이 분석 결과를 삭제할까요? 원본 신고서는 남아 있고, '분석 전' 상태로 돌아가요.")) return;
+  try {
+    const b = writeBatch(db);
+    b.delete(doc(db, "cases", c.id));
+    (c.reportIds || []).forEach((id) => {
+      if (reports.some((r) => r.id === id)) b.update(doc(db, "reports", id), { status: "new", caseId: deleteField() });
+    });
+    await b.commit();
+    toast("삭제했어요.");
+  } catch (e) { toast("삭제하지 못했어요: " + (e.code || e.message), true); }
+}
+
+/* ───────── 학급 링크 ───────── */
+function makeLinks() {
+  const names = $("#classNames").value.split(/[,\n]/).map((s) => s.trim()).filter(Boolean);
+  LS.set("sb_classes", $("#classNames").value);
+  const base = new URL("student.html", location.href);
+  const list = $("#linkList");
+  if (!names.length) { list.replaceChildren(h("div", { class: "empty" }, "학급 이름을 적어 주세요.")); return; }
+  list.replaceChildren(...names.map((n) => {
+    const u = new URL(base); u.searchParams.set("class", n);
+    const input = h("input", { type: "text", readonly: true, value: u.href, "aria-label": n + " 링크" });
+    const copy = h("button", { class: "btn sm primary", type: "button" }, "복사");
+    copy.addEventListener("click", async () => {
+      const ok = await copyText(u.href);
+      copy.textContent = ok ? "복사됨 ✓" : "실패";
+      setTimeout(() => (copy.textContent = "복사"), 1500);
+    });
+    return h("div", { class: "linkrow" }, h("b", {}, n + "반"), input, copy,
+      h("a", { class: "btn sm", href: u.href, target: "_blank", rel: "noopener", style: "text-decoration:none" }, "열어보기"));
+  }));
+}
+$("#btnMakeLinks").addEventListener("click", makeLinks);
+$("#classNames").value = LS.get("sb_classes", "5-1, 5-2");
+makeLinks();
+
+/* ───────── 설정 ───────── */
+const dlg = $("#dlgSettings");
+function openSettings() {
+  const s = getSettings();
+  $("#setKey").value = s.key;
+  $("#setModel").value = s.model;
+  $("#setMask").checked = s.mask;
+  $("#setOther").checked = s.other;
+  if (!dlg.open) dlg.showModal();
+}
+function refreshKeyNotice() { $("#keyNotice").hidden = !!getSettings().key; }
+$("#btnSettings").addEventListener("click", openSettings);
+$("#formSettings").addEventListener("submit", (e) => {
+  if (e.submitter?.value !== "save") return;
+  LS.set("sb_key", $("#setKey").value.trim());
+  LS.set("sb_model", $("#setModel").value.trim() || DEFAULT_MODEL);
+  LS.set("sb_mask", $("#setMask").checked ? "1" : "0");
+  LS.set("sb_other", $("#setOther").checked ? "1" : "0");
+  refreshKeyNotice();
+  toast("설정을 저장했어요.");
+});
+</script>
+</body>
+</html>
